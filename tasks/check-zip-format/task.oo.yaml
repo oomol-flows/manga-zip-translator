@@ -1,0 +1,43 @@
+inputs_def:
+  - handle: url
+    description: "%local-file-path-or-http-https-url-of-the-file-to-validate-suppor%"
+    json_schema:
+      type: string
+    nullable: false
+
+outputs_def:
+  - handle: is_zip
+    description: "%true-if-the-file-has-valid-zip-signature-pk-header-false-otherwi%"
+    json_schema:
+      type: boolean
+    nullable: false
+
+  - handle: file_size
+    description: "%file-size-in-bytes-available-for-both-local-files-and-remote-url%"
+    json_schema:
+      type: number
+    nullable: false
+
+  - handle: file_zip_path
+    description: "%absolute-path-to-the-local-zip-file-only-returned-when-input-is%"
+    json_schema:
+      type: string
+    nullable: false
+
+  - handle: file_zip_url
+    description: "%original-url-of-the-remote-zip-file-only-returned-when-input-is%"
+    json_schema:
+      type: string
+      format: uri
+    nullable: false
+
+executor:
+  name: python
+  options:
+    entry: __init__.py
+    spawn: false
+
+title: "%check-zip-format%"
+icon: ":carbon:document:"
+description: "%validate-if-a-local-file-or-remote-url-is-a-valid-zip-archive-by%"
+private: true

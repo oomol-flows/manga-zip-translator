@@ -1,0 +1,12 @@
+version: 0.1.1
+scripts:
+  bootstrap: |
+    npm install
+    poetry install --no-root
+dependencies:
+  alicloud-oss: 0.0.4
+name: manga-zip-translator
+icon: ./icon.png
+displayName: "%display-name%"
+description: "%description%"
+hide_source: true

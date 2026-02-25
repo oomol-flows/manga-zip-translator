@@ -1,0 +1,362 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Fusion API",
+    "version": "1.0.0",
+    "description": "第三方 AI 服务统一任务管理与状态追踪"
+  },
+  "paths": {
+    "/v1/manga-zip-translate/submit": {
+      "post": {
+        "tags": [
+          "manga-zip-translate"
+        ],
+        "summary": "提交 manga-zip-translate 任务",
+        "description": "Manga zip translate",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MangaZipTranslateSubmit"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "任务提交成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SubmitResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "请求参数错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "未授权",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/manga-zip-translate/result/{sessionID}": {
+      "get": {
+        "tags": [
+          "manga-zip-translate"
+        ],
+        "summary": "获取 manga-zip-translate 任务结果",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "description": "会话 ID",
+              "example": "01936c8e-7890-7abc-def0-123456789abc"
+            },
+            "required": true,
+            "description": "会话 ID",
+            "name": "sessionID",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "任务已完成",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultCompletedResponse"
+                }
+              }
+            }
+          },
+          "202": {
+            "description": "任务处理中",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StateProcessingResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "会话不存在",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NotFoundResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/manga-zip-translate/state/{sessionID}": {
+      "get": {
+        "tags": [
+          "manga-zip-translate"
+        ],
+        "summary": "获取 manga-zip-translate 任务状态",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "description": "会话 ID",
+              "example": "01936c8e-7890-7abc-def0-123456789abc"
+            },
+            "required": true,
+            "description": "会话 ID",
+            "name": "sessionID",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "任务状态",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "anyOf": [
+                    {
+                      "$ref": "#/components/schemas/StateCompletedResponse"
+                    },
+                    {
+                      "$ref": "#/components/schemas/StateProcessingResponse"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "会话不存在",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NotFoundResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "SubmitResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "enum": [
+              true
+            ]
+          },
+          "sessionID": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "success",
+          "sessionID"
+        ]
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "error"
+        ]
+      },
+      "ResultCompletedResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "enum": [
+              true
+            ]
+          },
+          "state": {
+            "type": "string",
+            "enum": [
+              "completed"
+            ]
+          },
+          "data": {
+            "type": "object",
+            "additionalProperties": {}
+          }
+        },
+        "required": [
+          "success",
+          "state",
+          "data"
+        ]
+      },
+      "StateProcessingResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "enum": [
+              true
+            ]
+          },
+          "state": {
+            "type": "string",
+            "enum": [
+              "processing"
+            ]
+          },
+          "progress": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "success",
+          "state",
+          "progress"
+        ]
+      },
+      "NotFoundResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "enum": [
+              false
+            ]
+          },
+          "state": {
+            "type": "string",
+            "enum": [
+              "not_found"
+            ]
+          },
+          "error": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "success",
+          "state",
+          "error"
+        ]
+      },
+      "StateCompletedResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "enum": [
+              true
+            ]
+          },
+          "state": {
+            "type": "string",
+            "enum": [
+              "completed"
+            ]
+          }
+        },
+        "required": [
+          "success",
+          "state"
+        ]
+      },
+      "MangaZipTranslateSubmit": {
+        "type": "object",
+        "properties": {
+          "zip_url": {
+            "type": "string",
+            "format": "uri",
+            "description": "漫画 ZIP 文件的 URL"
+          },
+          "config": {
+            "type": "object",
+            "properties": {
+              "translator": {
+                "type": "object",
+                "properties": {
+                  "target_lang": {
+                    "type": "string",
+                    "enum": [
+                      "CHS",
+                      "CHT",
+                      "CSY",
+                      "NLD",
+                      "ENG",
+                      "FRA",
+                      "DEU",
+                      "HUN",
+                      "ITA",
+                      "JPN",
+                      "KOR",
+                      "POL",
+                      "PTB",
+                      "ROM",
+                      "RUS",
+                      "ESP",
+                      "TRK",
+                      "UKR",
+                      "VIN",
+                      "ARA",
+                      "CNR",
+                      "SRP",
+                      "HRV",
+                      "THA",
+                      "IND",
+                      "FIL"
+                    ]
+                  },
+                  "oomol_token": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                },
+                "required": [
+                  "target_lang",
+                  "oomol_token"
+                ],
+                "additionalProperties": {}
+              }
+            },
+            "required": [
+              "translator"
+            ],
+            "additionalProperties": {},
+            "description": "翻译配置"
+          }
+        },
+        "required": [
+          "zip_url",
+          "config"
+        ]
+      }
+    }
+  }
+}

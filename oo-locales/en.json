@@ -30,5 +30,6 @@
   "target-language-for-translation": "Target language for translation. Supports 26 languages including Chinese, Japanese, Korean, English, and European languages.",
   "download-url-of-the-translated-manga-zip-file-only-available-whe2": "Download URL of the translated manga ZIP file. Only available when translation completes successfully. URL is time-limited.",
   "test-flow-for-manga-zip-translate-task": "Test flow for manga-zip-translate task",
-  "oomol-studio-url-zip-translator": "After uploading local files, translation is supported. This is suitable for use in oomol-studio. For web or other platforms, please use url-zip-translator."
+  "oomol-studio-url-zip-translator": "After uploading local files, translation is supported. This is suitable for use in oomol-studio. For web or other platforms, please use url-zip-translator.",
+  "zip": "Manga Zip Translator"
 }

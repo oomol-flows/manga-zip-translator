@@ -10,3 +10,9 @@ icon: ./icon.png
 displayName: "%display-name%"
 description: "%description%"
 hide_source: true
+ui:
+  blocks:
+    - url-zip-translator
+    - check-zip-format
+    - manga-zip-translate
+    - file-zip-translator

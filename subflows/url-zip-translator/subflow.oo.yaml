@@ -1,4 +1,4 @@
-title: "漫画 Zip  翻译器"
+title: "%zip%"
 description: "%translates-text-in-manga-zip-archives-to-target-language-validat%"
 inputs_def:
   - handle: url

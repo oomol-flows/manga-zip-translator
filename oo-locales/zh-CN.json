@@ -30,5 +30,6 @@
   "download-url-of-the-translated-manga-zip-file-only-available-whe2": "已翻译漫画 ZIP 文件的下载链接。仅在翻译成功完成时可用。链接有时间限制。",
   "test-flow-for-manga-zip-translate-task": "测试漫画 ZIP 翻译任务的流程",
   "manga-zip-translator": "漫画 Zip 文件翻译器",
-  "oomol-studio-url-zip-translator": "本地文件上传后翻译，适合在 oomol-studio 中使用，网页或者其他端使用，请使用 url-zip-translator"
+  "oomol-studio-url-zip-translator": "本地文件上传后翻译，适合在 oomol-studio 中使用，网页或者其他端使用，请使用 url-zip-translator",
+  "zip": "漫画 Zip  翻译器"
 }

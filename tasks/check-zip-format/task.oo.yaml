@@ -1,5 +1,5 @@
 inputs_def:
-  - handle: url
+  - handle: path
     description: "%local-file-path-or-http-https-url-of-the-file-to-validate-suppor%"
     json_schema:
       type: string

@@ -25,9 +25,10 @@
   "manga-zip-translate-1": "Manga Zip Translate #1",
   "check-zip-format-2": "Check Zip Format #2",
   "check-zip-format": "Check Zip Format",
-  "translates-text-in-manga-zip-archives-to-target-language-validat": "Translates text in manga ZIP archives to target language, validates ZIP format, uploads to cloud, and returns translated ZIP URL.",
+  "translates-text-in-manga-zip-archives-to-target-language-validat": "Translate the text from the comic ZIP archive into the target language. If it is a URL, a direct request will be made.",
   "local-file-path-to-the-manga-zip-archive-use-file-picker-widget": "Local file path to the manga ZIP archive. Use file picker widget to select a ZIP file containing manga images.",
   "target-language-for-translation": "Target language for translation. Supports 26 languages including Chinese, Japanese, Korean, English, and European languages.",
   "download-url-of-the-translated-manga-zip-file-only-available-whe2": "Download URL of the translated manga ZIP file. Only available when translation completes successfully. URL is time-limited.",
-  "test-flow-for-manga-zip-translate-task": "Test flow for manga-zip-translate task"
+  "test-flow-for-manga-zip-translate-task": "Test flow for manga-zip-translate task",
+  "oomol-studio-url-zip-translator": "After uploading local files, translation is supported. This is suitable for use in oomol-studio. For web or other platforms, please use url-zip-translator."
 }

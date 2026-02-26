@@ -1,12 +1,4 @@
 title: "%test-manga-zip-translate%"
 description: "%test-flow-for-manga-zip-translate-task%"
 nodes:
-  - node_id: upload-translate#1
-    inputs_from:
-      - handle: file
-        value: /oomol-driver/oomol-storage/1.zip
-      - handle: target_lang
-        value: CHS
-      - handle: wait_timeout
-        value: 6000
-    subflow: self::zip-translator
+  []

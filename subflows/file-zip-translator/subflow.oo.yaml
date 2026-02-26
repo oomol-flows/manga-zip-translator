@@ -1,0 +1,133 @@
+title: "%manga-zip-translator%"
+description: "%oomol-studio-url-zip-translator%"
+inputs_def:
+  - handle: file
+    description: "%local-file-path-to-the-manga-zip-archive-use-file-picker-widget%"
+    json_schema:
+      type: string
+      ui:widget: file
+    nullable: false
+    executor_name: nodejs
+  - handle: target_lang
+    description: "%target-language-for-translation%"
+    json_schema:
+      enum:
+        - CHS
+        - CHT
+        - CSY
+        - NLD
+        - ENG
+        - FRA
+        - DEU
+        - HUN
+        - ITA
+        - JPN
+        - KOR
+        - POL
+        - PTB
+        - ROM
+        - RUS
+        - ESP
+        - TRK
+        - UKR
+        - VIN
+        - ARA
+        - CNR
+        - SRP
+        - HRV
+        - THA
+        - IND
+        - FIL
+      ui:options:
+        labels:
+          - Chinese Simplified
+          - Chinese Traditional
+          - Czech
+          - Dutch
+          - English
+          - French
+          - German
+          - Hungarian
+          - Italian
+          - Japanese
+          - Korean
+          - Polish
+          - Portuguese Brazilian
+          - Romanian
+          - Russian
+          - Spanish
+          - Turkish
+          - Ukrainian
+          - Vietnamese
+          - Arabic
+          - Montenegrin
+          - Serbian
+          - Croatian
+          - Thai
+          - Indonesian
+          - Filipino
+    value: CHS
+    nullable: false
+    executor_name: python
+  - handle: wait_timeout
+    description: "%timeout-in-seconds-for-translation-task-default-1200s-20-minutes%"
+    json_schema:
+      type: number
+    value: 1200
+    nullable: true
+    executor_name: python
+outputs_def:
+  - handle: result_zip_url
+    description: "%download-url-of-the-translated-manga-zip-file-only-available-whe2%"
+    json_schema:
+      type: string
+      format: uri
+    nullable: true
+    executor_name: python
+nodes:
+  - node_id: upload-to-cloud#1
+    title: "%1%"
+    inputs_from:
+      - handle: file
+        from_flow:
+          []
+        from_node:
+          - node_id: check-zip-format#2
+            output_handle: file_zip_path
+    task: alicloud-oss::upload-to-cloud
+  - node_id: manga-zip-translate#1
+    title: "%manga-zip-translate-1%"
+    inputs_from:
+      - handle: zip_url
+        from_node:
+          - node_id: upload-to-cloud#1
+            output_handle: remote_url
+          - node_id: check-zip-format#2
+            output_handle: file_zip_url
+      - handle: target_lang
+        value: CHS
+        from_flow:
+          - input_handle: target_lang
+      - handle: wait_timeout
+        value: 1200
+        from_flow:
+          - input_handle: wait_timeout
+      - handle: poll_interval
+        value: 5
+      - handle: max_retries
+        value: 3
+      - handle: retry_delay
+        value: 2
+    task: self::manga-zip-translate
+  - node_id: check-zip-format#2
+    title: "%check-zip-format-2%"
+    inputs_from:
+      - handle: path
+        from_flow:
+          - input_handle: file
+    task: self::check-zip-format
+outputs_from:
+  - handle: result_zip_url
+    from_node:
+      - node_id: manga-zip-translate#1
+        output_handle: result_zip_url

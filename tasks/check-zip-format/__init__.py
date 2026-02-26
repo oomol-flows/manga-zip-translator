@@ -1,7 +1,7 @@
 #region generated meta
 import typing
 class Inputs(typing.TypedDict):
-    url: str
+    path: str
 class Outputs(typing.TypedDict):
     is_zip: typing.NotRequired[bool]
     file_size: typing.NotRequired[float]

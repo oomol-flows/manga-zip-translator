@@ -86,6 +86,7 @@ async def _request_with_retry(
                 await asyncio.sleep(retry_delay * (attempt + 1))
 
         except httpx.HTTPStatusError as e:
+            last_error_msg = str(e)
             if attempt < max_retries - 1:
                 await asyncio.sleep(retry_delay * (attempt + 1))
 
@@ -129,9 +130,7 @@ async def _submit_task(
     client: httpx.AsyncClient,
     zip_url: str,
     target_lang: str,
-    oomol_token: str,
-    max_retries: int,
-    retry_delay: float
+    oomol_token: str
 ) -> str:
     """Submit manga-zip-translate task and return session ID."""
     url = f"{FUSION_API_BASE}/manga-zip-translate/submit"
@@ -150,25 +149,19 @@ async def _submit_task(
         }
     }
 
-    response = await _request_with_retry(
-        client, "POST", url, headers, payload, max_retries, retry_delay
-    )
-
-    if response.status_code == 401:
-        error_data = response.json()
-        raise ValueError(f"Unauthorized: {error_data.get('error', 'Invalid OOMOL token')}")
-
-    if response.status_code == 400:
-        error_data = response.json()
-        raise ValueError(f"Bad request: {error_data.get('error', error_data.get('message', 'Unknown error'))}")
+    try:
+        response = await client.post(url, headers=headers, json=payload, timeout=30.0)
+    except (httpx.ConnectError, httpx.TimeoutException) as e:
+        raise RuntimeError(f"Failed to connect to API server: {e}")
 
     if not response.is_success:
-        # Handle other error status codes
+        error_msg = "Unknown error"
         try:
             error_data = response.json()
             error_msg = error_data.get('error') or error_data.get('message') or 'Unknown error'
         except Exception:
-            error_msg = response.text or 'Unknown error'
+            if response.text:
+                error_msg = response.text
         raise RuntimeError(f"Task submission failed (status {response.status_code}): {error_msg}")
 
     response.raise_for_status()
@@ -312,7 +305,7 @@ async def main(params: Inputs, context: Context) -> Outputs:
         # Step 2: Submit task
         context.report_progress(5)
         session_id = await _submit_task(
-            client, zip_url, target_lang, oomol_token, max_retries, retry_delay
+            client, zip_url, target_lang, oomol_token
         )
         context.report_progress(10)
 

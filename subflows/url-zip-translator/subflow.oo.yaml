@@ -1,11 +1,11 @@
-title: "%manga-zip-translator%"
+title: "漫画 Zip  翻译器"
 description: "%translates-text-in-manga-zip-archives-to-target-language-validat%"
 inputs_def:
-  - handle: file
+  - handle: url
     description: "%local-file-path-to-the-manga-zip-archive-use-file-picker-widget%"
     json_schema:
       type: string
-      ui:widget: file
+      format: uri
     nullable: false
     executor_name: nodejs
   - handle: target_lang
@@ -70,10 +70,11 @@ inputs_def:
     nullable: false
     executor_name: python
   - handle: wait_timeout
+    description: "%timeout-in-seconds-for-translation-task-default-1200s-20-minutes%"
     json_schema:
       type: number
-    nullable: true
     value: 1200
+    nullable: true
     executor_name: python
 outputs_def:
   - handle: result_zip_url
@@ -121,9 +122,9 @@ nodes:
   - node_id: check-zip-format#2
     title: "%check-zip-format-2%"
     inputs_from:
-      - handle: url
+      - handle: path
         from_flow:
-          - input_handle: file
+          - input_handle: url
     task: self::check-zip-format
 outputs_from:
   - handle: result_zip_url

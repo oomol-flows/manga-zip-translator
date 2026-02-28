@@ -73,7 +73,7 @@ inputs_def:
     description: "%timeout-in-seconds-for-translation-task-default-1200s-20-minutes%"
     json_schema:
       type: number
-    value: 1200
+    value: 2400
     nullable: true
     executor_name: python
   - handle: colorize
@@ -129,6 +129,7 @@ nodes:
           - node_id: check-zip-format#2
             output_handle: file_zip_path
     task: alicloud-oss::upload-to-cloud
+    progress_weight: 2
   - node_id: manga-zip-translate#1
     title: "%manga-zip-translate-1%"
     inputs_from:
@@ -162,6 +163,7 @@ nodes:
         from_flow:
           - input_handle: file
     task: self::manga-zip-translate
+    progress_weight: 7
   - node_id: check-zip-format#2
     title: "%check-zip-format-2%"
     inputs_from:
@@ -169,6 +171,7 @@ nodes:
         from_flow:
           - input_handle: path
     task: self::check-zip-format
+    progress_weight: 1
 outputs_from:
   - handle: result_zip_url
     from_node:

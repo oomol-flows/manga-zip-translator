@@ -1,4 +1,4 @@
-version: 0.1.7
+version: 0.2.0
 scripts:
   bootstrap: |
     npm install
@@ -15,4 +15,3 @@ ui:
     - check-zip-format
     - manga-zip-translate
     - file-zip-translator
-releaseNotes: 增加上色，目录，文件名选项。输出内容增加 原始地址和云盘路径

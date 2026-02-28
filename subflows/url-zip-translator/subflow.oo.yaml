@@ -70,29 +70,29 @@ inputs_def:
     nullable: false
     executor_name: python
   - handle: wait_timeout
-    description: "%timeout-in-seconds-for-translation-task-default-1200s-20-minutes%"
+    description: "%timeout-in-seconds-for-translation-task-default-2400s-40-minutes%"
     json_schema:
       type: number
-    value: 1200
+    value: 2400
     nullable: true
     executor_name: python
   - handle: colorize
+    description: "%key1%"
     json_schema:
       type: boolean
     nullable: true
-    description: "%key1%"
     executor_name: python
   - handle: directory
+    description: "%key2%"
     json_schema:
       type: string
     nullable: true
-    description: "%key2%"
     executor_name: python
   - handle: file
+    description: "%key3%"
     json_schema:
       type: string
     nullable: true
-    description: "%key3%"
     executor_name: python
 outputs_def:
   - handle: session_id
@@ -134,6 +134,7 @@ nodes:
           - node_id: check-zip-format#2
             output_handle: file_zip_path
     task: alicloud-oss::upload-to-cloud
+    progress_weight: 2
   - node_id: manga-zip-translate#1
     title: "%manga-zip-translate-1%"
     inputs_from:
@@ -167,6 +168,7 @@ nodes:
         from_flow:
           - input_handle: file
     task: self::manga-zip-translate
+    progress_weight: 7
   - node_id: check-zip-format#2
     title: "%check-zip-format-2%"
     inputs_from:
@@ -174,6 +176,7 @@ nodes:
         from_flow:
           - input_handle: url
     task: self::check-zip-format
+    progress_weight: 1
 outputs_from:
   - handle: result_zip_url
     from_node:

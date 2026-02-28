@@ -1,5 +1,6 @@
 #region generated meta
 import typing
+from typing import Any, Literal
 class Inputs(typing.TypedDict):
     zip_url: str
     target_lang: typing.Literal["CHS", "CHT", "CSY", "NLD", "ENG", "FRA", "DEU", "HUN", "ITA", "JPN", "KOR", "POL", "PTB", "ROM", "RUS", "ESP", "TRK", "UKR", "VIN", "ARA", "CNR", "SRP", "HRV", "THA", "IND", "FIL"]
@@ -140,7 +141,9 @@ async def _submit_task(
     oomol_token: str,
     colorize: bool | None = None,
     directory: str | None = None,
-    file: str | None = None
+    file: str | None = None,
+    max_retries: int = 3,
+    retry_delay: float = 2.0
 ) -> str:
     """Submit manga-zip-translate task and return session ID."""
     url = f"{FUSION_API_BASE}/manga-zip-translate/submit"
@@ -171,37 +174,59 @@ async def _submit_task(
             file = f"{file}.zip"
         payload["file"] = file
 
-    try:
-        response = await client.post(url, headers=headers, json=payload, timeout=30.0)
-    except (httpx.ConnectError, httpx.TimeoutException) as e:
-        raise RuntimeError(f"Failed to connect to API server: {e}")
+    last_error_msg = None
 
-    if not response.is_success:
-        # Build detailed error message
-        error_details = f"status={response.status_code}"
+    for attempt in range(max_retries):
         try:
-            error_data = response.json()
-            error_details = f"{error_details}, response={error_data}"
-        except Exception:
-            if response.text:
-                error_details = f"{error_details}, response={response.text}"
-        raise RuntimeError(f"Task submission failed: {error_details}")
+            response = await client.post(url, headers=headers, json=payload, timeout=30.0)
 
-    response.raise_for_status()
-    result = response.json()
+            # Handle server errors (5xx) - may be transient, retry
+            if response.status_code >= 500:
+                last_error_msg = f"status={response.status_code}, response={response.text}"
+                if attempt < max_retries - 1:
+                    print(f"[RETRY {attempt + 1}/{max_retries}] {last_error_msg}")
+                    await asyncio.sleep(retry_delay * (attempt + 1))
+                    continue
+                raise RuntimeError(f"Task submission failed after {max_retries} retries: {last_error_msg}")
 
-    # Log the full response for debugging
-    print(f"[DEBUG] Submit response: {result}")
+            # Handle client errors (4xx) - don't retry
+            if response.status_code >= 400:
+                raise RuntimeError(f"Task submission failed: status={response.status_code}, response={response.text}")
 
-    if not result.get("success"):
-        raise RuntimeError("Task submission failed: success=false in response")
+            # Success response
+            result = response.json()
+            print(f"[DEBUG] Submit response: {result}")
 
-    session_id = result.get("sessionID")
-    if not session_id:
-        raise RuntimeError("Task submission failed: no sessionID in response")
+            if not result.get("success"):
+                raise RuntimeError(f"Task submission failed: {result}")
 
-    print(f"[DEBUG] Got sessionID: {session_id}")
-    return session_id
+            session_id = result.get("sessionID")
+            if not session_id:
+                raise RuntimeError(f"Task submission failed: no sessionID in response, response={result}")
+
+            print(f"[DEBUG] Got sessionID: {session_id}")
+            return session_id
+
+        except httpx.ConnectError as e:
+            last_error_msg = f"Connection error: {e}"
+            if attempt < max_retries - 1:
+                print(f"[RETRY {attempt + 1}/{max_retries}] {last_error_msg}")
+                await asyncio.sleep(retry_delay * (attempt + 1))
+            else:
+                raise RuntimeError(f"Task submission failed after {max_retries} retries: {last_error_msg}")
+
+        except httpx.TimeoutException as e:
+            last_error_msg = f"Request timeout: {e}"
+            if attempt < max_retries - 1:
+                print(f"[RETRY {attempt + 1}/{max_retries}] {last_error_msg}")
+                await asyncio.sleep(retry_delay * (attempt + 1))
+            else:
+                raise RuntimeError(f"Task submission failed after {max_retries} retries: {last_error_msg}")
+
+        except RuntimeError:
+            raise
+
+    raise RuntimeError(f"Task submission failed after {max_retries} retries: {last_error_msg}")
 
 
 async def _poll_state(
@@ -291,8 +316,7 @@ async def _fetch_result(
     if not response.is_success:
         # Handle error status codes with server error message
         try:
-            error_data = response.json()
-            error_msg = error_data.get('error') or error_data.get('message') or 'Unknown error'
+            error_msg = response.json()
         except Exception:
             error_msg = response.text or 'Unknown error'
         raise RuntimeError(f"Fetch result failed (status {response.status_code}): {error_msg}")
@@ -300,8 +324,7 @@ async def _fetch_result(
     result = response.json()
 
     if not result.get("success"):
-        error_msg = result.get("error") or result.get("message") or "success=false in response"
-        raise RuntimeError(f"Failed to fetch result: {error_msg}")
+        raise RuntimeError(f"Failed to fetch result: {result}")
 
     return result.get("data", {})
 
@@ -334,9 +357,14 @@ async def main(params: Inputs, context: Context) -> Outputs:
             client, zip_url, target_lang, oomol_token,
             colorize=colorize,
             directory=directory,
-            file=file
+            file=file,
+            max_retries=max_retries,
+            retry_delay=retry_delay
         )
         context.report_progress(10)
+
+        # Output session_id immediately after getting it
+        context.output("session_id", session_id)
 
         # Step 3: Poll for task completion (using state endpoint)
         await _poll_state(
@@ -348,6 +376,15 @@ async def main(params: Inputs, context: Context) -> Outputs:
         data = await _fetch_result(
             client, session_id, oomol_token, max_retries, retry_delay
         )
+
+        # Output each result as soon as we have it
+        context.output("status", data.get("status", ""))
+        context.output("result_zip_url", data.get("resultZipURL", ""))
+        context.output("result_zip_raw_url", data.get("resultZipRawURL"))
+        context.output("result_zip_object_key", data.get("resultZipObjectKey"))
+        context.output("translated_images", int(data.get("translatedImages", 0)))
+        context.output("total_pages", int(data.get("totalPages", 0)))
+        context.output("translated_pages", int(data.get("translatedPages", 0)))
 
         return {
             "session_id": session_id,

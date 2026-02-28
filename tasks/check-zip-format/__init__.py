@@ -19,7 +19,7 @@ ZIP_SIGNATURE = b'PK\x03\x04'
 
 
 async def main(params: Inputs, context: Context) -> Outputs:
-    url = params["url"]
+    url = params["path"]
 
     if not url:
         raise ValueError("url is required")
@@ -33,30 +33,38 @@ async def main(params: Inputs, context: Context) -> Outputs:
     if not url.startswith(("http://", "https://")):
         return _check_local_zip(url)
 
-    # Remote URL - download and check signature
+    # Remote URL - use GET with stream to minimize download
     async with httpx.AsyncClient(verify=False) as client:
-        # Use GET with range header to download only first 4 bytes for signature check
-        # If server doesn't support range, fall back to downloading header
         try:
-            # First try HEAD request to get content-length
-            head_response = await client.head(url, timeout=30.0, follow_redirects=True)
-
-            if head_response.status_code >= 400:
-                raise ValueError(f"URL is not accessible (status: {head_response.status_code}): {url}")
-
-            content_length = head_response.headers.get("content-length")
-            file_size = int(content_length) if content_length else None
-
-            # Try to get first 4 bytes to check ZIP signature
+            # Use GET with Range header to minimize download
+            # Stream mode allows us to read only what we need
             headers = {"Range": "bytes=0-3"}
-            response = await client.get(url, headers=headers, timeout=30.0, follow_redirects=True)
+            async with client.stream("GET", url, headers=headers, timeout=30.0, follow_redirects=True) as response:
+                if response.status_code >= 400:
+                    raise ValueError(f"URL is not accessible (status: {response.status_code}): {url}")
 
-            if response.status_code == 206:  # Partial content - range supported
-                signature = response.content
-            elif response.status_code == 200:  # Full content returned (range not supported)
-                signature = response.content[:4]
-            else:
-                raise ValueError(f"Failed to fetch file content (status: {response.status_code}): {url}")
+                # Get content-length from headers (may be total size or partial size)
+                content_range = response.headers.get("content-range")
+                content_length = response.headers.get("content-length")
+
+                # Parse file size from Content-Range header if available (e.g., "bytes 0-3/12345")
+                if content_range:
+                    try:
+                        file_size = int(content_range.split("/")[-1])
+                    except (ValueError, IndexError):
+                        file_size = None
+                elif content_length and response.status_code == 200:
+                    # If full content returned, content-length is the total size
+                    file_size = int(content_length)
+                else:
+                    file_size = None
+
+                # Read only first 4 bytes for signature check
+                signature = b""
+                async for chunk in response.aiter_bytes(4):
+                    signature += chunk
+                    if len(signature) >= 4:
+                        break
 
             # Check if signature matches ZIP format
             is_zip = signature[:4] == ZIP_SIGNATURE

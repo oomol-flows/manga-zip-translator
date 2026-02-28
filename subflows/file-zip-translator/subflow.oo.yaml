@@ -1,5 +1,5 @@
 title: "%manga-zip-translator%"
-description: "%oomol-studio-url-zip-translator%"
+description: "%file-zip-translator-description%"
 inputs_def:
   - handle: file
     description: "%local-file-path-to-the-manga-zip-archive-use-file-picker-widget%"
@@ -76,6 +76,21 @@ inputs_def:
     value: 1200
     nullable: true
     executor_name: python
+  - handle: colorize
+    json_schema:
+      type: boolean
+    nullable: true
+    executor_name: python
+  - handle: directory
+    json_schema:
+      type: string
+    nullable: true
+    executor_name: python
+  - handle: input
+    json_schema:
+      type: string
+    nullable: true
+    executor_name: python
 outputs_def:
   - handle: result_zip_url
     description: "%download-url-of-the-translated-manga-zip-file-only-available-whe2%"
@@ -83,6 +98,22 @@ outputs_def:
       type: string
       format: uri
     nullable: true
+    executor_name: python
+  - handle: result_zip_raw_url
+    json_schema:
+      type: string
+      format: uri
+    nullable: true
+    executor_name: python
+  - handle: result_zip_object_key
+    json_schema:
+      type: string
+    nullable: true
+    executor_name: python
+  - handle: total_pages
+    json_schema:
+      type: integer
+    nullable: false
     executor_name: python
 nodes:
   - node_id: upload-to-cloud#1
@@ -118,6 +149,15 @@ nodes:
         value: 3
       - handle: retry_delay
         value: 2
+      - handle: colorize
+        from_flow:
+          - input_handle: colorize
+      - handle: directory
+        from_flow:
+          - input_handle: directory
+      - handle: file
+        from_flow:
+          - input_handle: input
     task: self::manga-zip-translate
   - node_id: check-zip-format#2
     title: "%check-zip-format-2%"
@@ -131,3 +171,15 @@ outputs_from:
     from_node:
       - node_id: manga-zip-translate#1
         output_handle: result_zip_url
+  - handle: result_zip_raw_url
+    from_node:
+      - node_id: manga-zip-translate#1
+        output_handle: result_zip_raw_url
+  - handle: result_zip_object_key
+    from_node:
+      - node_id: manga-zip-translate#1
+        output_handle: result_zip_object_key
+  - handle: total_pages
+    from_node:
+      - node_id: manga-zip-translate#1
+        output_handle: total_pages

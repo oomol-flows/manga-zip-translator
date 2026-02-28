@@ -39,5 +39,5 @@ executor:
 
 title: "%check-zip-format%"
 icon: ":carbon:document:"
-description: "%validate-if-a-local-file-or-remote-url-is-a-valid-zip-archive-by%"
+description: "%check-zip-format-description%"
 private: true

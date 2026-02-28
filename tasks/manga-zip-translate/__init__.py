@@ -3,15 +3,22 @@ import typing
 class Inputs(typing.TypedDict):
     zip_url: str
     target_lang: typing.Literal["CHS", "CHT", "CSY", "NLD", "ENG", "FRA", "DEU", "HUN", "ITA", "JPN", "KOR", "POL", "PTB", "ROM", "RUS", "ESP", "TRK", "UKR", "VIN", "ARA", "CNR", "SRP", "HRV", "THA", "IND", "FIL"]
+    colorize: bool | None
+    directory: str | None
+    file: str | None
     wait_timeout: float | None
     poll_interval: float | None
     max_retries: float | None
     retry_delay: float | None
 class Outputs(typing.TypedDict):
-    task_id: typing.NotRequired[str]
-    result_zip_url: typing.NotRequired[str | None]
-    total_pages: typing.NotRequired[float | None]
-    translated_pages: typing.NotRequired[float | None]
+    session_id: typing.NotRequired[str]
+    status: typing.NotRequired[str]
+    result_zip_url: typing.NotRequired[str]
+    result_zip_raw_url: typing.NotRequired[str | None]
+    result_zip_object_key: typing.NotRequired[str | None]
+    translated_images: typing.NotRequired[int]
+    total_pages: typing.NotRequired[int]
+    translated_pages: typing.NotRequired[int]
 #endregion
 
 import asyncio
@@ -130,7 +137,10 @@ async def _submit_task(
     client: httpx.AsyncClient,
     zip_url: str,
     target_lang: str,
-    oomol_token: str
+    oomol_token: str,
+    colorize: bool | None = None,
+    directory: str | None = None,
+    file: str | None = None
 ) -> str:
     """Submit manga-zip-translate task and return session ID."""
     url = f"{FUSION_API_BASE}/manga-zip-translate/submit"
@@ -149,20 +159,33 @@ async def _submit_task(
         }
     }
 
+    if colorize is not None:
+        payload["colorize"] = colorize
+
+    if directory is not None:
+        payload["directory"] = directory
+
+    if file is not None:
+        # Ensure file ends with .zip
+        if not file.lower().endswith(".zip"):
+            file = f"{file}.zip"
+        payload["file"] = file
+
     try:
         response = await client.post(url, headers=headers, json=payload, timeout=30.0)
     except (httpx.ConnectError, httpx.TimeoutException) as e:
         raise RuntimeError(f"Failed to connect to API server: {e}")
 
     if not response.is_success:
-        error_msg = "Unknown error"
+        # Build detailed error message
+        error_details = f"status={response.status_code}"
         try:
             error_data = response.json()
-            error_msg = error_data.get('error') or error_data.get('message') or 'Unknown error'
+            error_details = f"{error_details}, response={error_data}"
         except Exception:
             if response.text:
-                error_msg = response.text
-        raise RuntimeError(f"Task submission failed (status {response.status_code}): {error_msg}")
+                error_details = f"{error_details}, response={response.text}"
+        raise RuntimeError(f"Task submission failed: {error_details}")
 
     response.raise_for_status()
     result = response.json()
@@ -286,7 +309,10 @@ async def _fetch_result(
 async def main(params: Inputs, context: Context) -> Outputs:
     zip_url = params["zip_url"]
     target_lang = params["target_lang"]
-    wait_timeout = params.get("wait_timeout") or 1200
+    colorize = params.get("colorize")
+    directory = params.get("directory")
+    file = params.get("file")
+    wait_timeout = params.get("wait_timeout") or 2400
     poll_interval = params.get("poll_interval") or 5
     max_retries = int(params.get("max_retries") or 3)
     retry_delay = params.get("retry_delay") or 2
@@ -305,7 +331,10 @@ async def main(params: Inputs, context: Context) -> Outputs:
         # Step 2: Submit task
         context.report_progress(5)
         session_id = await _submit_task(
-            client, zip_url, target_lang, oomol_token
+            client, zip_url, target_lang, oomol_token,
+            colorize=colorize,
+            directory=directory,
+            file=file
         )
         context.report_progress(10)
 
@@ -321,8 +350,12 @@ async def main(params: Inputs, context: Context) -> Outputs:
         )
 
         return {
-            "task_id": data.get("task_id", ""),
+            "session_id": session_id,
+            "status": data.get("status", ""),
             "result_zip_url": data.get("resultZipURL", ""),
-            "total_pages": data.get("totalPages"),
-            "translated_pages": data.get("translatedPages")
+            "result_zip_raw_url": data.get("resultZipRawURL"),
+            "result_zip_object_key": data.get("resultZipObjectKey"),
+            "translated_images": int(data.get("translatedImages", 0)),
+            "total_pages": int(data.get("totalPages", 0)),
+            "translated_pages": int(data.get("translatedPages", 0))
         }

@@ -67,6 +67,33 @@ inputs_def:
     value: CHS
     nullable: false
 
+  - group: Colorization Options
+    collapsed: false
+
+  - handle: colorize
+    description: "%enable-colorization-for-manga-images%"
+    json_schema:
+      type: boolean
+    value: false
+    nullable: true
+
+  - group: Output Options
+    collapsed: false
+
+  - handle: directory
+    description: "%optional-upload-directory-for-translated-zip-file%"
+    json_schema:
+      type: string
+    value:
+    nullable: true
+
+  - handle: file
+    description: "%optional-output-filename-for-translated-zip-file%"
+    json_schema:
+      type: string
+    value:
+    nullable: true
+
   - group: Polling Options
     collapsed: false
 
@@ -74,7 +101,7 @@ inputs_def:
     description: "%timeout-in-seconds-for-translation-task-default-1200s-20-minutes%"
     json_schema:
       type: number
-    value: 1200
+    value: 2400
     nullable: true
 
   - handle: poll_interval
@@ -99,30 +126,55 @@ inputs_def:
     nullable: true
 
 outputs_def:
-  - handle: task_id
-    description: "%unique-identifier-for-the-submitted-translation-task-can-be-used%"
+  - handle: session_id
+    description: "%session-id-for-the-translation-task%"
+    json_schema:
+      type: string
+    nullable: false
+
+  - handle: status
+    description: "%status-of-the-translation-task%"
     json_schema:
       type: string
     nullable: false
 
   - handle: result_zip_url
-    description: "%download-url-of-the-translated-manga-zip-file-only-available-whe%"
+    description: "%download-url-of-the-translated-manga-zip-file%"
+    json_schema:
+      type: string
+      format: uri
+    nullable: false
+
+  - handle: result_zip_raw_url
+    description: "%raw-download-url-of-the-translated-manga-zip-file%"
     json_schema:
       type: string
       format: uri
     nullable: true
 
-  - handle: total_pages
-    description: "%total-number-of-pages-detected-in-the-manga-zip-available-during%"
+  - handle: result_zip_object_key
+    description: "%object-storage-key-for-the-translated-zip-file%"
     json_schema:
-      type: number
+      type: string
     nullable: true
 
-  - handle: translated_pages
-    description: "%number-of-pages-successfully-translated-so-far-useful-for-progre%"
+  - handle: translated_images
+    description: "%number-of-images-successfully-translated%"
     json_schema:
-      type: number
-    nullable: true
+      type: integer
+    nullable: false
+
+  - handle: total_pages
+    description: "%total-number-of-pages-in-the-manga-zip%"
+    json_schema:
+      type: integer
+    nullable: false
+
+  - handle: translated_pages
+    description: "%number-of-pages-successfully-translated%"
+    json_schema:
+      type: integer
+    nullable: false
 
 executor:
   name: python
@@ -132,5 +184,5 @@ executor:
 
 title: "%manga-zip-translate%"
 icon: ":carbon:document:"
-description: "%submit-manga-zip-to-oomol-fusion-api-for-text-translation-poll-f%"
+description: "%manga-zip-translate-description%"
 private: true

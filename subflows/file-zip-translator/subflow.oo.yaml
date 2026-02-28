@@ -1,7 +1,7 @@
 title: "%manga-zip-translator%"
 description: "%file-zip-translator-description%"
 inputs_def:
-  - handle: file
+  - handle: path
     description: "%local-file-path-to-the-manga-zip-archive-use-file-picker-widget%"
     json_schema:
       type: string
@@ -77,19 +77,22 @@ inputs_def:
     nullable: true
     executor_name: python
   - handle: colorize
+    description: "%key4%"
     json_schema:
       type: boolean
     nullable: true
     executor_name: python
   - handle: directory
+    description: "%zip-task%"
     json_schema:
       type: string
     nullable: true
     executor_name: python
-  - handle: input
+  - handle: file
     json_schema:
       type: string
     nullable: true
+    description: "%zip-translated-zip%"
     executor_name: python
 outputs_def:
   - handle: result_zip_url
@@ -157,14 +160,14 @@ nodes:
           - input_handle: directory
       - handle: file
         from_flow:
-          - input_handle: input
+          - input_handle: file
     task: self::manga-zip-translate
   - node_id: check-zip-format#2
     title: "%check-zip-format-2%"
     inputs_from:
       - handle: path
         from_flow:
-          - input_handle: file
+          - input_handle: path
     task: self::check-zip-format
 outputs_from:
   - handle: result_zip_url

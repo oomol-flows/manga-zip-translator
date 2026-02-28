@@ -20,7 +20,7 @@
   "optional-colorization-size-for-image-processing": "可选的上色尺寸参数。指定上色处理的目标分辨率。留空则使用默认值。",
   "optional-upload-directory-for-translated-zip-file": "可选的翻译后 ZIP 文件上传目录。指定输出文件的存储目录路径。默认值：'task'。",
   "optional-output-filename-for-translated-zip-file": "可选的翻译后 ZIP 文件输出文件名。例如：'translated.zip'。留空则自动生成文件名。",
-  "timeout-in-seconds-for-translation-task-default-1200s-20-minutes": "翻译任务超时时间（秒）。默认值：1200 秒（20 分钟）。",
+  "timeout-in-seconds-for-translation-task-default-1200s-20-minutes": "翻译任务超时时间（秒）。默认值：2400 秒（40 分钟）。",
   "interval-in-seconds-between-status-check-requests-during-polling": "轮询期间状态检查请求的时间间隔（以秒为单位）。较低的数值可以提供更快的反馈，但会增加 API 调用次数。默认值：5 秒。",
   "maximum-number-of-retry-attempts-for-failed-http-requests-applie": "失败 HTTP 请求的最大重试次数。适用于任务提交和状态轮询。默认值：3。",
   "base-delay-in-seconds-between-retry-attempts-actual-delay-increa": "重试尝试之间的基础延迟（以秒为单位）。实际延迟会随着每次重试呈指数增长。默认值：2 秒。",
@@ -48,5 +48,8 @@
   "key1": "使用上色模型，默认不使用",
   "key2": "云盘文件夹路径",
   "key3": "转换后文件名，如果不是 .zip 结尾，会带上 .zip",
-  "zip-2": "网络 Zip  网址翻译器 #2"
+  "zip-2": "网络 Zip  网址翻译器 #2",
+  "zip-translated-zip": "可选的翻译后 ZIP 文件输出文件名。例如：'translated.zip'。留空则自动生成文件名。",
+  "zip-task": "可选的翻译后 ZIP 文件上传目录。指定输出文件的存储目录路径。默认值：'task'。",
+  "key4": "启用漫画图像上色功能。启用后，黑白漫画页面将自动上色。"
 }

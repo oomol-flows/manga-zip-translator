@@ -20,7 +20,7 @@
   "optional-colorization-size-for-image-processing": "Optional colorization size for image processing. Specifies the target resolution for colorization. Leave empty for default.",
   "optional-upload-directory-for-translated-zip-file": "Optional upload directory for translated ZIP file. Specifies the directory path for storing the output file. Default: 'task'.",
   "optional-output-filename-for-translated-zip-file": "Optional output filename for translated ZIP file. Example: 'translated.zip'. Leave empty for auto-generated name.",
-  "timeout-in-seconds-for-translation-task-default-1200s-20-minutes": "Timeout in seconds for translation task. Default: 1200s (20 minutes).",
+  "timeout-in-seconds-for-translation-task-default-1200s-20-minutes": "Translation task timeout (seconds). Default value: 2400 seconds (40 minutes).",
   "interval-in-seconds-between-status-check-requests-during-polling": "Interval in seconds between status check requests during polling. Lower values provide faster feedback but increase API calls. Default: 5s.",
   "maximum-number-of-retry-attempts-for-failed-http-requests-applie": "Maximum number of retry attempts for failed HTTP requests. Applies to both task submission and status polling. Default: 3.",
   "base-delay-in-seconds-between-retry-attempts-actual-delay-increa": "Base delay in seconds between retry attempts. Actual delay increases exponentially with each retry. Default: 2s.",
@@ -48,5 +48,8 @@
   "key1": "Use coloring model; not used by default.",
   "key2": "Cloud drive folder path",
   "key3": "After conversion, if the file name does not end with .zip, .zip will be added.",
-  "zip-2": "Web Zip URL Translator #2"
+  "zip-2": "Web Zip URL Translator #2",
+  "zip-translated-zip": "Optional output file name for the translated ZIP file. For example: 'translated.zip'. Leave blank to auto-generate the file name.",
+  "zip-task": "Optional directory for uploading the translated ZIP file. Specify the storage directory path for the output file. Default value: 'task'.",
+  "key4": "Enable comic image coloring. Once enabled, black-and-white comic pages will be automatically colored."
 }

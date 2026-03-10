@@ -48,7 +48,6 @@
   "key1": "Use coloring model; not used by default.",
   "key2": "Cloud drive folder path",
   "key3": "After conversion, if the file name does not end with .zip, .zip will be added.",
-  "zip-2": "Web Zip URL Translator #2",
   "zip-translated-zip": "Optional output file name for the translated ZIP file. For example: 'translated.zip'. Leave blank to auto-generate the file name.",
   "zip-task": "Optional directory for uploading the translated ZIP file. Specify the storage directory path for the output file. Default value: 'task'.",
   "key4": "Enable comic image coloring. Once enabled, black-and-white comic pages will be automatically colored."

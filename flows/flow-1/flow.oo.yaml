@@ -1,19 +1,32 @@
 title: "%test-manga-zip-translate%"
 description: "%test-flow-for-manga-zip-translate-task%"
 nodes:
-  - node_id: url-zip-translator#2
-    title: "%zip-2%"
+  - node_id: upload-to-cloud#1
+    title: "上传文件到云端 #1"
     inputs_from:
-      - handle: url
-        value: https://oomol-user-file-storage.oss-accelerate.aliyuncs.com/users/01936786-4384-7da5-963f-adf1c545754f/2.zip?OSSAccessKeyId=STS.NXa9NjW7sX2BBrPfZqiFeW29d&Expires=1772259602&Signature=5gS5HM%2FCbXnGgi2b%2FTXCnGdzBVU%3D&response-content-disposition=attachment%3B%20filename*%3DUTF-8%27%272.zip&security-token=CAISvQZ1q6Ft5B2yfSjIr5vUcvTeuuhS7%2FCpQFThglokZclJuPeShjz2IHhMfnRsCe4bv%2F42lG1U7%2FkYloZ0TJpCQQnZdsZqq8wOoFj%2FPNqf%2FpDuveBB15GsRC3CVUX1mcbebbzyEY%2BAJarxZQgUPNqMY%2BCoGw%2B5VnmJbLdx5fwON6a3NGvVRD5CA8gsgGIAzOYRKXrWM9u0LxfumRC%2BJUF0uw16%2B74Wi8G42dbOxRfCq1f4x%2BQJxfz2OYP2Q8RoMYtydN230edqFNLGyzUC0wVW0610gadY0DzD3LSaGEIDxxSdL9Ld6MF0Tn9%2BfbNoMqRDtuTZiPlku%2FTajZjK0xJKNO03NiPEX9KY3dfjEuGkPcpbBrHgICbs1NGTN5DpviY5ZW4aLApQZ%2Bc5Lnh5BX5KTSrBeJK%2F%2FFfDbj%2BqUbTno6YtysheyFDw%2BdeWKn2SR6mYyS8CJqIka0QhO2QQvwrbf7QBbhZHfn5%2BGr%2BRVv8TVh1Frr7ytgCgbE9Yx3pM7frlfKGU6OJNboL6WZYDzJEQftFIsm8nCk%2FrTKinhUpTaXdoW60RiPC8YsHguOHAnL7DPauZBvla%2FwQEKj6UpiaDEHgNcXCuu4EtLhjqLK2zoYXI95R%2FakpMgvlUEQCCd%2Ft0slVi%2BNHcxh%2BP8ejlIAnImW0j4Yv8%2FpJTzkFmc%2Fy4mJW73FjksWeXfLMylerORWRrWm7XQXFix%2B2IjX916nJKmmqvaREE8AbThyTie8oe1fjO22hJGOJdmODVDiy8%2BX9pBt%2Fzw9RpYv94feZBdve%2F0HsLweb8%2FSWqtoPAoWUjBarpbLY8eMkQWkOovvu9M5RKwr8%2BSmDycPMZ%2B9UFyVye0zpy1JhQKotmW0QfRqRdOOzJ%2Fd7u78pfwPEAzpbOZaXUH%2BqqooPNJFrxMHlShL4a6ARjSHvD6u%2B6GXuDP%2FZw9lnd5iUlSVb22ojwzTpGff%2FBC9pfsOFid3qWl30eKrByU7AkssqgJ99uOhStvTnDt7F1VAMS9p%2BwQ1Iak89eSdxcr65ZfOn%2FtiWwlNeO5EOO5u1%2BbvPI6sQU27WXJHz9C%2Fh7LNnWNjICNkx90%2ByKocT%2FX2TeUDW1UmLeL8KGd%2FQDGoABCPLsqR9%2F2nBNr8Jt2607tUK89JZuWXoy0I65%2BTnuqEyOuSFSon7%2FbW3ie6IHGG2v%2BYrGrr8kvql4e9ENddRr5hw3mTkrvnAQFEsEfkCdhsQB7fGjKEEF22Ubp6GCzvygB%2FJ00pzkr6HW4fMIsvA5kBakaXuOnllAU0wd1K9USFcgAA%3D%3D
-      - handle: target_lang
-        value: CHS
-      - handle: wait_timeout
-        value: 1200
-      - handle: colorize
-        value: true
-      - handle: directory
-        value: color
       - handle: file
-        value: a.zip
-    subflow: self::url-zip-translator
+    task: alicloud-oss::upload-to-cloud
+  - node_id: +python#1
+    title: "Python #1"
+    icon: ":logos:python:"
+    task:
+      ui:
+        default_width: 450
+      inputs_def:
+        - handle: remote_url
+          json_schema:
+            type: string
+            title: Presigned URL
+          nullable: false
+          description: Presigned URL for accessing the uploaded file (valid for 24 hours)
+      outputs_def:
+        []
+      executor:
+        name: python
+        options:
+          entry: scriptlets/+scriptlet#1.py
+    inputs_from:
+      - handle: remote_url
+        from_node:
+          - node_id: upload-to-cloud#1
+            output_handle: remote_url

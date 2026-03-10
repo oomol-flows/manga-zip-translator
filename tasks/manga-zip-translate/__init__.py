@@ -1,6 +1,5 @@
 #region generated meta
 import typing
-from typing import Any, Literal
 class Inputs(typing.TypedDict):
     zip_url: str
     target_lang: typing.Literal["CHS", "CHT", "CSY", "NLD", "ENG", "FRA", "DEU", "HUN", "ITA", "JPN", "KOR", "POL", "PTB", "ROM", "RUS", "ESP", "TRK", "UKR", "VIN", "ARA", "CNR", "SRP", "HRV", "THA", "IND", "FIL"]

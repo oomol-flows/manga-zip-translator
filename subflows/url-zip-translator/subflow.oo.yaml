@@ -2,14 +2,14 @@ title: "%zip%"
 description: "%url-zip-translator-description%"
 inputs_def:
   - handle: url
-    description: "%local-file-path-to-the-manga-zip-archive-use-file-picker-widget%"
+    description: "%url-zip-translator-url%"
     json_schema:
       type: string
       format: uri
     nullable: false
     executor_name: nodejs
   - handle: target_lang
-    description: "%target-language-for-translation%"
+    description: "%url-zip-translator-target-lang%"
     json_schema:
       enum:
         - CHS
@@ -70,55 +70,59 @@ inputs_def:
     nullable: false
     executor_name: python
   - handle: wait_timeout
-    description: "%timeout-in-seconds-for-translation-task-default-2400s-40-minutes%"
+    description: "%url-zip-translator-wait-timeout%"
     json_schema:
       type: number
     value: 2400
     nullable: true
     executor_name: python
   - handle: colorize
-    description: "%key1%"
+    description: "%url-zip-translator-colorize%"
     json_schema:
       type: boolean
     nullable: true
     executor_name: python
   - handle: directory
-    description: "%key2%"
+    description: "%url-zip-translator-directory%"
     json_schema:
       type: string
     nullable: true
     executor_name: python
   - handle: file
-    description: "%key3%"
+    description: "%url-zip-translator-file%"
     json_schema:
       type: string
     nullable: true
     executor_name: python
 outputs_def:
   - handle: session_id
+    description: "%url-zip-translator-session-id%"
     json_schema:
       type: string
     nullable: false
     executor_name: python
   - handle: result_zip_url
-    description: "%download-url-of-the-translated-manga-zip-file-only-available-whe2%"
+    description: "%url-zip-translator-result-zip-url%"
     json_schema:
       type: string
       format: uri
     nullable: true
     executor_name: python
   - handle: result_zip_raw_url
+    description: "%url-zip-translator-result-zip-raw-url%"
     json_schema:
       type: string
       format: uri
     nullable: true
     executor_name: python
   - handle: result_zip_object_key
+    description: "%url-zip-translator-result-zip-object-key%"
     json_schema:
       type: string
     nullable: true
     executor_name: python
   - handle: total_pages
+    description: "%url-zip-translator-total-pages%"
     json_schema:
       type: integer
     nullable: false

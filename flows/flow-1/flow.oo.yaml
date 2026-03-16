@@ -2,23 +2,23 @@ title: "%test-manga-zip-translate%"
 description: "%test-flow-for-manga-zip-translate-task%"
 nodes:
   - node_id: upload-to-cloud#1
-    title: "上传文件到云端 #1"
+    title: "%12%"
     inputs_from:
       - handle: file
     task: alicloud-oss::upload-to-cloud
   - node_id: +python#1
-    title: "Python #1"
+    title: "%python-1%"
     icon: ":logos:python:"
     task:
       ui:
         default_width: 450
       inputs_def:
         - handle: remote_url
+          description: "%presigned-url-for-accessing-the-uploaded-file-valid-for-24-hours%"
           json_schema:
             type: string
             title: Presigned URL
           nullable: false
-          description: Presigned URL for accessing the uploaded file (valid for 24 hours)
       outputs_def:
         []
       executor:

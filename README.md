@@ -5,9 +5,9 @@
 
 ## Project Overview
 
-Automatically translate manga ZIP archives to 26 target languages with OCR technology and optional colorization. This service uses OOMOL internal tokens for billing, with the billing subject as `manga-zip-translate`. Current pricing is 500 pages per token, with double metering when colorization is enabled.
+Automatically translate manga ZIP archives to 26 target languages with OCR technology and optional colorization. This service uses OOMOL internal tokens for billing, with the billing subject as `manga-zip-translate`.
 
-The translation process uses a small amount of AI for translation and records the associated costs. Note that the 500 pages/token pricing may be subject to change in the future.
+The translation process uses a small amount of AI for translation and records the associated costs.
 
 ## Block Capabilities
 

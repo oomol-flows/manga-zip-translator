@@ -346,7 +346,7 @@ async def main(params: Inputs, context: Context) -> Outputs:
 
     # Get OOMOL token for authentication
     oomol_token = await context.oomol_token()
-    api_base = context.oomol_fusion_api_url + "/v1"
+    api_base = getattr(context, "oomol_fusion_api_url", "https://fusion-api.oomol.com") + "/v1"
 
     async with httpx.AsyncClient() as client:
         # Step 1: Validate ZIP URL exists

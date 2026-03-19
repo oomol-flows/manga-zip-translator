@@ -25,7 +25,6 @@ import asyncio
 import httpx
 from oocana import Context
 
-FUSION_API_BASE = "https://fusion-api.oomol.com/v1"
 
 
 async def _request_with_retry(
@@ -138,6 +137,7 @@ async def _submit_task(
     zip_url: str,
     target_lang: str,
     oomol_token: str,
+    api_base: str,
     colorize: bool | None = None,
     directory: str | None = None,
     file: str | None = None,
@@ -145,7 +145,7 @@ async def _submit_task(
     retry_delay: float = 2.0
 ) -> str:
     """Submit manga-zip-translate task and return session ID."""
-    url = f"{FUSION_API_BASE}/manga-zip-translate/submit"
+    url = f"{api_base}/manga-zip-translate/submit"
     headers = {
         "Authorization": f"Bearer {oomol_token}",
         "Content-Type": "application/json"
@@ -232,6 +232,7 @@ async def _poll_state(
     client: httpx.AsyncClient,
     session_id: str,
     oomol_token: str,
+    api_base: str,
     context: Context,
     wait_timeout: float,
     poll_interval: float,
@@ -239,7 +240,7 @@ async def _poll_state(
     retry_delay: float
 ) -> None:
     """Poll for task state until completion or timeout. Returns nothing, only reports progress."""
-    url = f"{FUSION_API_BASE}/manga-zip-translate/state/{session_id}"
+    url = f"{api_base}/manga-zip-translate/state/{session_id}"
     print(f"[DEBUG] Poll state URL: {url}")
     print(f"[DEBUG] Polling with session_id: {session_id}")
     headers = {
@@ -296,11 +297,12 @@ async def _fetch_result(
     client: httpx.AsyncClient,
     session_id: str,
     oomol_token: str,
+    api_base: str,
     max_retries: int,
     retry_delay: float
 ) -> dict:
     """Fetch the final result after task completion."""
-    url = f"{FUSION_API_BASE}/manga-zip-translate/result/{session_id}"
+    url = f"{api_base}/manga-zip-translate/result/{session_id}"
     headers = {
         "Authorization": f"Bearer {oomol_token}"
     }
@@ -344,6 +346,7 @@ async def main(params: Inputs, context: Context) -> Outputs:
 
     # Get OOMOL token for authentication
     oomol_token = await context.oomol_token()
+    api_base = context.oomol_fusion_api_url + "/v1"
 
     async with httpx.AsyncClient() as client:
         # Step 1: Validate ZIP URL exists
@@ -353,7 +356,7 @@ async def main(params: Inputs, context: Context) -> Outputs:
         # Step 2: Submit task
         context.report_progress(5)
         session_id = await _submit_task(
-            client, zip_url, target_lang, oomol_token,
+            client, zip_url, target_lang, oomol_token, api_base,
             colorize=colorize,
             directory=directory,
             file=file,
@@ -367,13 +370,13 @@ async def main(params: Inputs, context: Context) -> Outputs:
 
         # Step 3: Poll for task completion (using state endpoint)
         await _poll_state(
-            client, session_id, oomol_token, context,
+            client, session_id, oomol_token, api_base, context,
             wait_timeout, poll_interval, max_retries, retry_delay
         )
 
         # Step 4: Fetch the final result
         data = await _fetch_result(
-            client, session_id, oomol_token, max_retries, retry_delay
+            client, session_id, oomol_token, api_base, max_retries, retry_delay
         )
 
         # Output each result as soon as we have it

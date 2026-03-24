@@ -101,7 +101,7 @@ inputs_def:
     description: "%timeout-in-seconds-for-translation-task-default-1200s-20-minutes%"
     json_schema:
       type: number
-    value: 2400
+    value: 5400
     nullable: true
 
   - handle: poll_interval

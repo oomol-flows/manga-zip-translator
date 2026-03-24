@@ -73,7 +73,7 @@ inputs_def:
     description: "%url-zip-translator-wait-timeout%"
     json_schema:
       type: number
-    value: 2400
+    value: 5400
     nullable: true
     executor_name: python
   - handle: colorize

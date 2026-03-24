@@ -336,7 +336,7 @@ async def main(params: Inputs, context: Context) -> Outputs:
     colorize = params.get("colorize")
     directory = params.get("directory")
     file = params.get("file")
-    wait_timeout = params.get("wait_timeout") or 2400
+    wait_timeout = params.get("wait_timeout") or 5400
     poll_interval = params.get("poll_interval") or 5
     max_retries = int(params.get("max_retries") or 3)
     retry_delay = params.get("retry_delay") or 2
